@@ -16,8 +16,10 @@ fn main() {
 
     let p = parsing::Lexer::convert(&mut t);
 
+    /*
     for i in p {
         println!("{:?}",i);
     }
+    */
 
 }

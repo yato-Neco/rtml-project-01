@@ -15,12 +15,26 @@ pub enum Token {
     None,         //None
 }
 
+pub enum CloseTag {
+    RDiv,   // div
+    RHtml,  //html
+    RHead,  //head
+    RTitle, //title
+    RBody,  //body
+    RH1,    //h1
+    RH2,    //h2
+    RH3,    //h3
+    RP,     //p
+    RA,
+}
+
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub enum TokenType {
     Tag,
     Text,
     Other,
     None,
+    Null,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -49,7 +63,7 @@ impl Lexer {
         tmp
     }
 
-    pub fn convert(input: &mut Lexer) -> Vec<Tokens> {
+    pub fn convert(input: &mut Lexer) {
         let mut result = Vec::new();
         let mut count = 0;
 
@@ -58,15 +72,86 @@ impl Lexer {
             //println!("{:?}",toki);
             result.push(toki);
             let tmp3 = result.last().unwrap();
+
             if tmp3.Type == TokenType::None {
-                break;
+                if count > 2 {
+                    break;
+                }
+
+                count += 1;
             };
 
             //if count > 10 {break};
             //count+=1;
         }
 
-        return result;
+        let result_count = result.len();
+        let mut tmp = Vec::new();
+        let mut tmp2 = Vec::new();
+
+        for i in 0..result_count {
+
+            
+            //println!("{:?}", result[i]);
+            
+
+
+            //println!("{:?}", [i]);
+            let mut ctagcount = 0;
+            let mut stagcount = 0;
+            
+            tmp.push(&result[i]);
+
+            for j in (i + 1)..result.len() {
+
+                if result[i].Type == TokenType::Tag {
+                    //println!("[{:?}]", result[j]);
+
+                    
+
+                    if result[j].Tag == Token::RCurlyBraces {
+                        if stagcount == 0{
+                            break;
+                        }
+                        stagcount-=1;
+
+                    }
+
+                    if result[j].Type == TokenType::Tag {
+                        ctagcount += 1;
+                        stagcount += 1;
+                    }
+                }
+            }
+
+            //println!("{}", ctagcount);
+            tmp2.push(ctagcount);
+        }
+
+        //println!("{}","-".repeat(60));
+
+
+
+        println!("{}",tmp2.len());
+        println!("{}",tmp.len());
+
+        let mut html = String::new();
+
+        for j in (0..tmp.len()) {
+            println!("{:?} : {}",tmp[j],tmp2[j]);
+
+
+            let _ = match tmp[j] {
+
+
+                _ => {}
+            };
+
+
+        }
+
+
+  
     }
 
     pub fn next_token(&mut self) -> Tokens {
@@ -99,13 +184,13 @@ impl Lexer {
                     Tag: Token::RCurlyBraces,
                     Value: None,
                 }
-            },
+            }
 
             _ => {
                 if self.ch > 0 {
                     if is_letter(&self.ch) {
                         let literal = self.read_identifier();
-                        println!("{}", literal);
+                        //println!("{}", literal);
                         let t = match literal.as_str() {
                             "div" => {
                                 if self.peek_char() == '{' {
@@ -128,7 +213,7 @@ impl Lexer {
                                 if self.peek_char() == '{' {
                                     self.read_char();
                                     Tokens {
-                                        Type: TokenType::Text,
+                                        Type: TokenType::Tag,
                                         Tag: Token::Html,
                                         Value: None,
                                     }
@@ -153,17 +238,16 @@ impl Lexer {
                         };
                         self.read_char();
                         return t;
-                    };
+                    }
                 }
+
                 self.read_char();
                 Tokens {
                     Type: TokenType::None,
                     Tag: Token::None,
                     Value: None,
                 }
-                
             }
-            
         };
 
         return token;
