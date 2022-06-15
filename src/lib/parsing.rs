@@ -12,20 +12,21 @@ pub enum Token {
     H3,           //h3
     P,            //p
     Id,           //Id
-    None,         //None
+    RDiv,         // div
+    RHtml,        //html
+    RHead,        //head
+    RTitle,       //title
+    RBody,        //body
+    RH1,          //h1
+    RH2,          //h2
+    RH3,          //h3
+    RP,           //p
+    RA,
+    None, //None
 }
 
 pub enum CloseTag {
-    RDiv,   // div
-    RHtml,  //html
-    RHead,  //head
-    RTitle, //title
-    RBody,  //body
-    RH1,    //h1
-    RH2,    //h2
-    RH3,    //h3
-    RP,     //p
-    RA,
+    None,
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -63,7 +64,7 @@ impl Lexer {
         tmp
     }
 
-    pub fn convert(input: &mut Lexer) {
+    pub fn convert(input: &mut Lexer) -> String {
         let mut result = Vec::new();
         let mut count = 0;
 
@@ -86,40 +87,46 @@ impl Lexer {
         }
 
         let result_count = result.len();
-        let mut tmp = Vec::new();
+        //let mut tmp = Vec::new();
         let mut tmp2 = Vec::new();
 
+        let mut tmp3 = Token::None;
+
         for i in 0..result_count {
-
-            
             //println!("{:?}", result[i]);
-            
-
 
             //println!("{:?}", [i]);
             let mut ctagcount = 0;
             let mut stagcount = 0;
-            
-            tmp.push(&result[i]);
+            //tmp.push(&result[i]);
+
+            if result[i].Type == TokenType::Tag {
+                //tmp3 = result[i].Tag;
+
+                tmp3 = match result[i].Tag {
+                    Token::Div => Token::RDiv,
+
+                    Token::Html => Token::RHtml,
+
+                    _ => Token::None,
+                };
+            }
 
             for j in (i + 1)..result.len() {
-
                 if result[i].Type == TokenType::Tag {
-                    //println!("[{:?}]", result[j]);
-
-                    
-
                     if result[j].Tag == Token::RCurlyBraces {
-                        if stagcount == 0{
+                        if stagcount == 0 {
+                            result[j].Tag = tmp3;
+
+                            println!("{:?}", result[j]);
                             break;
                         }
-                        stagcount-=1;
-
+                        stagcount -= 1;
                     }
 
                     if result[j].Type == TokenType::Tag {
-                        ctagcount += 1;
                         stagcount += 1;
+                        ctagcount += 1;
                     }
                 }
             }
@@ -130,28 +137,39 @@ impl Lexer {
 
         //println!("{}","-".repeat(60));
 
-
-
-        println!("{}",tmp2.len());
-        println!("{}",tmp.len());
+        println!("{}", tmp2.len());
+        println!("{}", result.len());
 
         let mut html = String::new();
 
-        for j in (0..tmp.len()) {
-            println!("{:?} : {}",tmp[j],tmp2[j]);
+        for j in 0..result.len() {
+            html += match result[j].Tag {
+                Token::Html => "<html>",
 
+                Token::Div => "<div>",
 
-            let _ = match tmp[j] {
+                Token::RCurlyBraces => "",
 
+                Token::RDiv => "</div>",
+                Token::RHtml => "</html>",
 
-                _ => {}
+                
+
+                _ => "",
             };
 
+            html += match result[j].Type {
+                TokenType::Text => 
+                {
+                    result[j].Value.as_ref().unwrap().as_str()
+                    
+                },
 
+                _ => "",
+            };
         }
 
-
-  
+        html
     }
 
     pub fn next_token(&mut self) -> Tokens {
@@ -208,7 +226,7 @@ impl Lexer {
                                         Value: Some(String::from("div")),
                                     }
                                 }
-                            }
+                            },
                             "html" => {
                                 if self.peek_char() == '{' {
                                     self.read_char();
@@ -225,14 +243,15 @@ impl Lexer {
                                         Value: Some(String::from("html")),
                                     }
                                 }
-                            }
+                            },
+
 
                             _ => {
                                 self.read_char();
                                 Tokens {
-                                    Type: TokenType::Other,
+                                    Type: TokenType::Text,
                                     Tag: Token::None,
-                                    Value: None,
+                                    Value: Some(literal),
                                 }
                             }
                         };

@@ -16,10 +16,14 @@ fn main() {
 
     let p = parsing::Lexer::convert(&mut t);
 
-    /*
-    for i in p {
-        println!("{:?}",i);
-    }
-    */
 
+    write(p).unwrap();
+
+}
+
+pub fn write(input:String) -> Result<(), Box<dyn std::error::Error>> {
+    let mut file = File::create("./index.html")?;
+    write!(file, "{}", input)?;
+    file.flush()?;
+    Ok(())
 }
