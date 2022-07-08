@@ -1,3 +1,9 @@
+extern crate prog_rs;
+use prog_rs::prelude::*;
+use std::collections::HashMap;
+
+use std::{thread, time};
+
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub enum Token {
     LCurlyBraces, // {
@@ -7,13 +13,24 @@ pub enum Token {
     Head,         //head
     Title,        //title
     Body,         //body
+    Link,
+    Script,
+    Crossorigin,
+    Integrity,
+    Href,
     H1,           //h1
     H2,           //h2
     H3,           //h3
     P,            //p
     Id,           //Id
+    Class,        //Class
+    Type,
+    CSS,
+    Src,
+    Style,
     RDiv,         // div
     RHtml,        //html
+    RScript,
     RHead,        //head
     RTitle,       //title
     RBody,        //body
@@ -33,9 +50,15 @@ pub enum CloseTag {
 pub enum TokenType {
     Tag,
     Text,
+    Id,
+    Src,
+    Crossorigin,
+    Class,
+    Style,
+    Href,
+    Type,
     Other,
     None,
-    Null,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -67,10 +90,15 @@ impl Lexer {
     pub fn convert(input: &mut Lexer) -> String {
         let mut result = Vec::new();
         let mut count = 0;
+        let mut st_flag = true;
+        let mut func = HashMap::new();
+        //let sleeptime =  time::Duration::from_millis(10);
+        //let sleeptime2 =  time::Duration::from_millis(100);
+        //let sleeptime3 =  time::Duration::from_millis(500);
 
         loop {
-            let toki = input.next_token();
-            //println!("{:?}",toki);
+            let toki = input.next_token(&mut st_flag, &mut func);
+            println!("{:?}", toki);
             result.push(toki);
             let tmp3 = result.last().unwrap();
 
@@ -78,7 +106,6 @@ impl Lexer {
                 if count > 2 {
                     break;
                 }
-
                 count += 1;
             };
 
@@ -92,7 +119,10 @@ impl Lexer {
 
         let mut tmp3 = Token::None;
 
-        for i in 0..result_count {
+        for i in (0..result_count)
+            .progress()
+            .with_prefix("Closing tag analysis in progress...")
+        {
             //println!("{:?}", result[i]);
 
             //println!("{:?}", [i]);
@@ -105,20 +135,24 @@ impl Lexer {
 
                 tmp3 = match result[i].Tag {
                     Token::Div => Token::RDiv,
-
+                    Token::Body => Token::RBody,
+                    Token::Head => Token::RHead,
+                    Token::Script => Token::RScript,
+                    Token::H1 => Token::RH1,
+                    Token::H2 => Token::RH2,
+                    Token::P => Token::RP,
                     Token::Html => Token::RHtml,
-
                     _ => Token::None,
                 };
             }
 
-            for j in (i + 1)..result.len() {
+            for j in ((i + 1)..result.len()) {
                 if result[i].Type == TokenType::Tag {
                     if result[j].Tag == Token::RCurlyBraces {
                         if stagcount == 0 {
                             result[j].Tag = tmp3;
 
-                            println!("{:?}", result[j]);
+                            //println!("{:?}", result[j]);
                             break;
                         }
                         stagcount -= 1;
@@ -129,54 +163,122 @@ impl Lexer {
                         ctagcount += 1;
                     }
                 }
+                //thread::sleep(sleeptime);
             }
 
             //println!("{}", ctagcount);
             tmp2.push(ctagcount);
+            //thread::sleep(sleeptime2);
         }
 
         //println!("{}","-".repeat(60));
 
-        println!("{}", tmp2.len());
-        println!("{}", result.len());
+        //println!("{}", tmp2.len());
+        //println!("{}", result.len());
 
         let mut html = String::new();
 
-        for j in 0..result.len() {
-            html += match result[j].Tag {
-                Token::Html => "<html>",
-
-                Token::Div => "<div>",
-
-                Token::RCurlyBraces => "",
-
-                Token::RDiv => "</div>",
-                Token::RHtml => "</html>",
-
-                
-
-                _ => "",
-            };
+        for j in (0..result.len() - 2)
+            .progress()
+            .with_prefix("                         Convert...")
+        {
+            //thread::sleep(sleeptime3);
+            let mut idtag = " id= ".to_owned();
+            let mut classtag = " class= ".to_owned();
+            let mut styletag = " style= ".to_owned();
+            let mut srctag = " src= ".to_owned();
+            let mut typetag = " type= ".to_owned();
+            let mut crossorigintag = " crossorigin= ".to_owned();
 
             html += match result[j].Type {
-                TokenType::Text => 
-                {
-                    result[j].Value.as_ref().unwrap().as_str()
-                    
-                },
-
+                TokenType::Text => result[j].Value.as_ref().unwrap().as_str(),
                 _ => "",
             };
+
+
+            html += match result[j].Tag {
+                Token::Html => "<html",
+                Token::Head => "<head",
+                Token::Link => "<link",
+                Token::Div => "<div",
+                Token::Body => "<body",
+                Token::H1 => "<h1",
+                Token::H2 => "<h2",
+                Token::P => "<p",
+                Token::Script => "<script",
+                Token::RScript => "</script>",
+                Token::RP => "</p>",
+                Token::RH1 => "</h1>",
+                Token::RH2 => "</h2>",
+                Token::RDiv => "</div>",
+                Token::RHead => "</head>",
+                Token::RHtml => "</html>",
+                Token::RBody => "</body>",
+                Token::RCurlyBraces => "",
+                Token::LCurlyBraces => "",
+                _ => "",
+            };
+
+
+            html += match result[j + 1].Tag {
+                Token::Id => {
+                    idtag.push_str(&result[j + 1].Value.as_ref().unwrap());
+                    &idtag
+                },
+                Token::Class => {
+                    classtag.push_str(&result[j + 1].Value.as_ref().unwrap());
+                    &classtag
+                }
+                Token::Style => {
+                    styletag.push_str(&result[j + 1].Value.as_ref().unwrap());
+                    &styletag
+                }
+                Token::Src => {
+                    srctag.push_str(&result[j + 1].Value.as_ref().unwrap());
+                    &srctag
+                }
+                Token::Type => {
+                    typetag.push_str(&result[j + 1].Value.as_ref().unwrap());
+                    &typetag
+                }
+                Token::Crossorigin => {
+                    crossorigintag.push_str(&result[j + 1].Value.as_ref().unwrap());
+                    &crossorigintag
+                }
+
+                
+                Token::RCurlyBraces => "",
+                Token::LCurlyBraces => "",
+                _ => "",
+            };
+
+
+            html += match result[j].Tag {
+                Token::Html => ">",
+                Token::Head => ">",
+                Token::Link => "/>",
+                Token::Div => ">",
+                Token::Body => ">",
+                Token::H1 => ">",
+                Token::H2 => ">",
+                Token::P => ">",
+                Token::Script => ">",
+                Token::RCurlyBraces => "",
+                Token::LCurlyBraces => "",
+                _ => "",
+            };
+ 
+
+            
         }
 
         html
     }
 
-    pub fn next_token(&mut self) -> Tokens {
+    pub fn next_token(&mut self, st_flag: &mut bool, func: &mut HashMap<String, String>) -> Tokens {
         let mut flag = true;
         while flag {
             let c = char::from(self.ch);
-            //println!("{}", c.is_whitespace());
 
             if c.is_whitespace() {
                 self.read_char();
@@ -194,6 +296,14 @@ impl Lexer {
                     Value: None,
                 }
             }
+            b':' => {
+                self.read_char();
+                Tokens {
+                    Type: TokenType::Other,
+                    Tag: Token::None,
+                    Value: None,
+                }
+            }
 
             b'}' => {
                 self.read_char();
@@ -204,12 +314,212 @@ impl Lexer {
                 }
             }
 
+            b'"' => {
+                self.read_char();
+                let mut count = 0;
+                let mut st = String::new();
+
+                loop {
+                    if self.peek_char_usize(count) == '"' {
+                        return Tokens {
+                            Type: TokenType::Text,
+                            Tag: Token::None,
+                            Value: Some(st),
+                        };
+                    }
+
+                    st.push(self.peek_char_usize(count));
+
+                    count += 1;
+                }
+            }
+
             _ => {
                 if self.ch > 0 {
                     if is_letter(&self.ch) {
                         let literal = self.read_identifier();
                         //println!("{}", literal);
                         let t = match literal.as_str() {
+                            "id" => {
+                                self.read_char();
+                                if self.peek_char_isize(-1) == ':' {
+                                    let mut count = 0;
+                                    let mut l = String::from('"');
+                                    loop {
+                                        if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
+                                            break;
+                                        }
+
+                                        l.push(self.peek_char_usize(count));
+
+                                        count += 1;
+                                    }
+                                    l.push('"');
+                                    println!("{}", l);
+
+                                    return Tokens {
+                                        Type: TokenType::Id,
+                                        Tag: Token::Id,
+                                        Value: Some(l.to_owned()),
+                                    };
+                                } else {
+                                    return Tokens {
+                                        Type: TokenType::Text,
+                                        Tag: Token::None,
+                                        Value: Some("id".to_owned()),
+                                    };
+                                }
+                            }
+                            "class" => {
+                                self.read_char();
+                                if self.peek_char_isize(-1) == ':' {
+                                    let mut count = 0;
+                                    let mut l = String::from('"');
+                                    loop {
+                                        if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
+                                            break;
+                                        }
+
+                                        l.push(self.peek_char_usize(count));
+
+                                        count += 1;
+                                    }
+                                    l.push('"');
+                                    println!("{}", l);
+
+                                    return Tokens {
+                                        Type: TokenType::Class,
+                                        Tag: Token::Class,
+                                        Value: Some(l.to_owned()),
+                                    };
+                                } else {
+                                    return Tokens {
+                                        Type: TokenType::Text,
+                                        Tag: Token::None,
+                                        Value: Some("class".to_owned()),
+                                    };
+                                }
+                            }
+                            "style" => {
+                                self.read_char();
+                                if self.peek_char_isize(-1) == ':' {
+                                    let mut count = 0;
+                                    let mut l = String::from('"');
+                                    loop {
+                                        if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
+                                            break;
+                                        }
+
+                                        l.push(self.peek_char_usize(count));
+
+                                        count += 1;
+                                    }
+                                    l.push('"');
+                                    println!("{}", l);
+
+                                    return Tokens {
+                                        Type: TokenType::Style,
+                                        Tag: Token::Style,
+                                        Value: Some(l.to_owned()),
+                                    };
+                                } else {
+                                    return Tokens {
+                                        Type: TokenType::Text,
+                                        Tag: Token::None,
+                                        Value: Some("style".to_owned()),
+                                    };
+                                }
+                            }
+                            "src" => {
+                                self.read_char();
+                                if self.peek_char_isize(-1) == ':' {
+                                    let mut count = 0;
+                                    let mut l = String::from('"');
+                                    loop {
+                                        if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
+                                            break;
+                                        }
+
+                                        l.push(self.peek_char_usize(count));
+
+                                        count += 1;
+                                    }
+                                    l.push('"');
+                                    println!("{}", l);
+
+                                    return Tokens {
+                                        Type: TokenType::Src,
+                                        Tag: Token::Src,
+                                        Value: Some(l.to_owned()),
+                                    };
+                                } else {
+                                    return Tokens {
+                                        Type: TokenType::Text,
+                                        Tag: Token::None,
+                                        Value: Some("src".to_owned()),
+                                    };
+                                }
+                            }
+                            "type" => {
+                                self.read_char();
+                                if self.peek_char_isize(-1) == ':' {
+                                    let mut count = 0;
+                                    let mut l = String::from('"');
+                                    loop {
+                                        if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
+                                            break;
+                                        }
+
+                                        l.push(self.peek_char_usize(count));
+
+                                        count += 1;
+                                    }
+                                    l.push('"');
+                                    println!("{}", l);
+
+                                    return Tokens {
+                                        Type: TokenType::Type,
+                                        Tag: Token::Type,
+                                        Value: Some(l.to_owned()),
+                                    };
+                                } else {
+                                    return Tokens {
+                                        Type: TokenType::Text,
+                                        Tag: Token::None,
+                                        Value: Some("type".to_owned()),
+                                    };
+                                }
+                            }
+                            "crossorigin" => {
+                                self.read_char();
+                                if self.peek_char_isize(-1) == ':' {
+                                    let mut count = 0;
+                                    let mut l = String::from('"');
+                                    loop {
+                                        if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
+                                            break;
+                                        }
+
+                                        l.push(self.peek_char_usize(count));
+
+                                        count += 1;
+                                    }
+                                    l.push('"');
+                                    println!("{}", l);
+
+                                    return Tokens {
+                                        Type: TokenType::Crossorigin,
+                                        Tag: Token::Crossorigin,
+                                        Value: Some(l.to_owned()),
+                                    };
+                                } else {
+                                    return Tokens {
+                                        Type: TokenType::Text,
+                                        Tag: Token::None,
+                                        Value: Some("crossorigin".to_owned()),
+                                    };
+                                }
+                            }
                             "div" => {
                                 if self.peek_char() == '{' {
                                     self.read_char();
@@ -226,7 +536,7 @@ impl Lexer {
                                         Value: Some(String::from("div")),
                                     }
                                 }
-                            },
+                            }
                             "html" => {
                                 if self.peek_char() == '{' {
                                     self.read_char();
@@ -243,15 +553,167 @@ impl Lexer {
                                         Value: Some(String::from("html")),
                                     }
                                 }
-                            },
+                            }
+                            "body" => {
+                                if self.peek_char() == '{' {
+                                    self.read_char();
+                                    Tokens {
+                                        Type: TokenType::Tag,
+                                        Tag: Token::Body,
+                                        Value: None,
+                                    }
+                                } else {
+                                    self.read_char();
+                                    Tokens {
+                                        Type: TokenType::Text,
+                                        Tag: Token::None,
+                                        Value: Some(String::from("body")),
+                                    }
+                                }
+                            }
+                            "h" => {
+                                //println!("{}",self.peek_char_isize(2));
+                                if self.peek_char_isize(0) == '1' {
+                                    self.read_char();
+                                    if self.peek_char() == '{' {
+                                        self.read_char();
+                                        Tokens {
+                                            Type: TokenType::Tag,
+                                            Tag: Token::H1,
+                                            Value: None,
+                                        }
+                                    } else {
+                                        self.read_char();
+                                        Tokens {
+                                            Type: TokenType::Text,
+                                            Tag: Token::None,
+                                            Value: Some(String::from("h1")),
+                                        }
+                                    }
+                                } else if self.peek_char_isize(0) == '2' {
+                                    self.read_char();
+                                    if self.peek_char() == '{' {
+                                        self.read_char();
+                                        Tokens {
+                                            Type: TokenType::Tag,
+                                            Tag: Token::H2,
+                                            Value: None,
+                                        }
+                                    } else {
+                                        self.read_char();
+                                        Tokens {
+                                            Type: TokenType::Text,
+                                            Tag: Token::None,
+                                            Value: Some(String::from("h2")),
+                                        }
+                                    }
+                                } else {
+                                    self.read_char();
+                                    Tokens {
+                                        Type: TokenType::Other,
+                                        Tag: Token::None,
+                                        Value: None,
+                                    }
+                                }
+                            }
+                            "p" => {
+                                if self.peek_char() == '{' {
+                                    self.read_char();
+                                    Tokens {
+                                        Type: TokenType::Tag,
+                                        Tag: Token::P,
+                                        Value: None,
+                                    }
+                                } else {
+                                    self.read_char();
+                                    Tokens {
+                                        Type: TokenType::Text,
+                                        Tag: Token::None,
+                                        Value: Some(String::from("p")),
+                                    }
+                                }
+                            }
+                            "head" => {
+                                if self.peek_char() == '{' {
+                                    self.read_char();
+                                    Tokens {
+                                        Type: TokenType::Tag,
+                                        Tag: Token::Head,
+                                        Value: None,
+                                    }
+                                } else {
+                                    self.read_char();
+                                    Tokens {
+                                        Type: TokenType::Text,
+                                        Tag: Token::None,
+                                        Value: Some(String::from("head")),
+                                    }
+                                }
+                            }
+                            "fn" => {
+                                let mut count = 1;
+                                let mut l = String::new();
+                                let mut fn_argument: bool = false;
 
+                                loop {
+                                    //println!("{}",self.peek_char_usize(count));
+                                    l.push(self.peek_char_usize(count));
+
+                                    if self.peek_char_usize(count) == '(' {
+                                        fn_argument = true;
+                                    }
+
+                                    if self.peek_char_usize(count) == ')' && fn_argument == true {
+                                        //let mut count2 = 0;
+
+                                        loop {
+                                            //println!("{}",self.peek_char_usize(count + 2));
+
+                                            if self.peek_char_usize(count) == '-'
+                                                && self.peek_char_usize(count + 1) == '>'
+                                            {
+                                                break;
+                                            } else if self.peek_char_usize(count) == '-'
+                                                && self.peek_char_usize(count + 1) != '>'
+                                            {
+                                                self.err();
+                                            }
+
+                                            count += 1;
+                                        }
+
+                                        //println!("{}",self.peek_char_usize(count))
+
+                                        break;
+                                    }
+
+                                    count += 1;
+                                }
+
+                                //空白除去
+                                l.retain(|c| c != ' ');
+
+                                println!("fn name: {:?}", l);
+
+                                func.insert(l, "".to_owned());
+
+                                println!("{:?}", func);
+
+                                //println!("{}",self.peek_char_usize(count + 3));
+
+                                Tokens {
+                                    Type: TokenType::None,
+                                    Tag: Token::None,
+                                    Value: None,
+                                }
+                            }
 
                             _ => {
                                 self.read_char();
                                 Tokens {
-                                    Type: TokenType::Text,
+                                    Type: TokenType::Other,
                                     Tag: Token::None,
-                                    Value: Some(literal),
+                                    Value: None,
                                 }
                             }
                         };
@@ -269,6 +731,7 @@ impl Lexer {
             }
         };
 
+        self.next();
         return token;
     }
 
@@ -290,11 +753,19 @@ impl Lexer {
         }
     }
 
-    fn peek_char_test(&self, c: usize) -> char {
+    fn peek_char_usize(&self, c: usize) -> char {
         if self.read_position >= self.input.len() {
             char::from(0)
         } else {
             char::from(self.input.as_bytes()[self.position + c])
+        }
+    }
+
+    fn peek_char_isize(&self, c: isize) -> char {
+        if self.read_position >= self.input.len() {
+            char::from(0)
+        } else {
+            char::from(self.input.as_bytes()[(((self.position) as isize) + c) as usize])
         }
     }
 

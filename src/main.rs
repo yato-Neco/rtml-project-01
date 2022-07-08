@@ -19,6 +19,8 @@ fn main() {
 
     write(p).unwrap();
 
+
+
 }
 
 pub fn write(input:String) -> Result<(), Box<dyn std::error::Error>> {
@@ -27,3 +29,4 @@ pub fn write(input:String) -> Result<(), Box<dyn std::error::Error>> {
     file.flush()?;
     Ok(())
 }
+

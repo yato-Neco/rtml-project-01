@@ -1,29 +1,32 @@
 html {
 
-
-    div {
-
-        div {
+    id: aaa;
 
 
+    body {
 
+        src: iii;
 
-
+        h1 {
+            
+            "hello world "
+            "ii "
         }
 
 
+        h2 {
+
+
+            "oooo"
+
+            
+        }
+
+
+
+
+
     }
-
-
-    div {
-
-
-
-
-
-    }
-
-
 }
 
 
@@ -32,6 +35,4 @@ fn name() -> div {
 
 
 
-
-    
 }
