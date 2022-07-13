@@ -18,26 +18,26 @@ pub enum Token {
     Crossorigin,
     Integrity,
     Href,
-    H1,           //h1
-    H2,           //h2
-    H3,           //h3
-    P,            //p
-    Id,           //Id
-    Class,        //Class
+    H1,    //h1
+    H2,    //h2
+    H3,    //h3
+    P,     //p
+    Id,    //Id
+    Class, //Class
     Type,
     CSS,
     Src,
     Style,
-    RDiv,         // div
-    RHtml,        //html
+    RDiv,  // div
+    RHtml, //html
     RScript,
-    RHead,        //head
-    RTitle,       //title
-    RBody,        //body
-    RH1,          //h1
-    RH2,          //h2
-    RH3,          //h3
-    RP,           //p
+    RHead,  //head
+    RTitle, //title
+    RBody,  //body
+    RH1,    //h1
+    RH2,    //h2
+    RH3,    //h3
+    RP,     //p
     RA,
     None, //None
 }
@@ -56,6 +56,7 @@ pub enum TokenType {
     Class,
     Style,
     Href,
+    Attribute,
     Type,
     Other,
     None,
@@ -195,7 +196,6 @@ impl Lexer {
                 _ => "",
             };
 
-
             html += match result[j].Tag {
                 Token::Html => "<html",
                 Token::Head => "<head",
@@ -219,12 +219,11 @@ impl Lexer {
                 _ => "",
             };
 
-
             html += match result[j + 1].Tag {
                 Token::Id => {
                     idtag.push_str(&result[j + 1].Value.as_ref().unwrap());
                     &idtag
-                },
+                }
                 Token::Class => {
                     classtag.push_str(&result[j + 1].Value.as_ref().unwrap());
                     &classtag
@@ -246,12 +245,10 @@ impl Lexer {
                     &crossorigintag
                 }
 
-                
                 Token::RCurlyBraces => "",
                 Token::LCurlyBraces => "",
                 _ => "",
             };
-
 
             html += match result[j].Tag {
                 Token::Html => ">",
@@ -267,9 +264,6 @@ impl Lexer {
                 Token::LCurlyBraces => "",
                 _ => "",
             };
- 
-
-            
         }
 
         html
@@ -341,184 +335,22 @@ impl Lexer {
                         //println!("{}", literal);
                         let t = match literal.as_str() {
                             "id" => {
-                                self.read_char();
-                                if self.peek_char_isize(-1) == ':' {
-                                    let mut count = 0;
-                                    let mut l = String::from('"');
-                                    loop {
-                                        if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
-                                            break;
-                                        }
-
-                                        l.push(self.peek_char_usize(count));
-
-                                        count += 1;
-                                    }
-                                    l.push('"');
-                                    println!("{}", l);
-
-                                    return Tokens {
-                                        Type: TokenType::Id,
-                                        Tag: Token::Id,
-                                        Value: Some(l.to_owned()),
-                                    };
-                                } else {
-                                    return Tokens {
-                                        Type: TokenType::Text,
-                                        Tag: Token::None,
-                                        Value: Some("id".to_owned()),
-                                    };
-                                }
+                                self.attribute("id")
                             }
                             "class" => {
-                                self.read_char();
-                                if self.peek_char_isize(-1) == ':' {
-                                    let mut count = 0;
-                                    let mut l = String::from('"');
-                                    loop {
-                                        if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
-                                            break;
-                                        }
-
-                                        l.push(self.peek_char_usize(count));
-
-                                        count += 1;
-                                    }
-                                    l.push('"');
-                                    println!("{}", l);
-
-                                    return Tokens {
-                                        Type: TokenType::Class,
-                                        Tag: Token::Class,
-                                        Value: Some(l.to_owned()),
-                                    };
-                                } else {
-                                    return Tokens {
-                                        Type: TokenType::Text,
-                                        Tag: Token::None,
-                                        Value: Some("class".to_owned()),
-                                    };
-                                }
+                                self.attribute("class")
                             }
                             "style" => {
-                                self.read_char();
-                                if self.peek_char_isize(-1) == ':' {
-                                    let mut count = 0;
-                                    let mut l = String::from('"');
-                                    loop {
-                                        if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
-                                            break;
-                                        }
-
-                                        l.push(self.peek_char_usize(count));
-
-                                        count += 1;
-                                    }
-                                    l.push('"');
-                                    println!("{}", l);
-
-                                    return Tokens {
-                                        Type: TokenType::Style,
-                                        Tag: Token::Style,
-                                        Value: Some(l.to_owned()),
-                                    };
-                                } else {
-                                    return Tokens {
-                                        Type: TokenType::Text,
-                                        Tag: Token::None,
-                                        Value: Some("style".to_owned()),
-                                    };
-                                }
+                                self.attribute("style")
                             }
                             "src" => {
-                                self.read_char();
-                                if self.peek_char_isize(-1) == ':' {
-                                    let mut count = 0;
-                                    let mut l = String::from('"');
-                                    loop {
-                                        if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
-                                            break;
-                                        }
-
-                                        l.push(self.peek_char_usize(count));
-
-                                        count += 1;
-                                    }
-                                    l.push('"');
-                                    println!("{}", l);
-
-                                    return Tokens {
-                                        Type: TokenType::Src,
-                                        Tag: Token::Src,
-                                        Value: Some(l.to_owned()),
-                                    };
-                                } else {
-                                    return Tokens {
-                                        Type: TokenType::Text,
-                                        Tag: Token::None,
-                                        Value: Some("src".to_owned()),
-                                    };
-                                }
+                                self.attribute("src")
                             }
                             "type" => {
-                                self.read_char();
-                                if self.peek_char_isize(-1) == ':' {
-                                    let mut count = 0;
-                                    let mut l = String::from('"');
-                                    loop {
-                                        if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
-                                            break;
-                                        }
-
-                                        l.push(self.peek_char_usize(count));
-
-                                        count += 1;
-                                    }
-                                    l.push('"');
-                                    println!("{}", l);
-
-                                    return Tokens {
-                                        Type: TokenType::Type,
-                                        Tag: Token::Type,
-                                        Value: Some(l.to_owned()),
-                                    };
-                                } else {
-                                    return Tokens {
-                                        Type: TokenType::Text,
-                                        Tag: Token::None,
-                                        Value: Some("type".to_owned()),
-                                    };
-                                }
+                                self.attribute("type")
                             }
                             "crossorigin" => {
-                                self.read_char();
-                                if self.peek_char_isize(-1) == ':' {
-                                    let mut count = 0;
-                                    let mut l = String::from('"');
-                                    loop {
-                                        if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
-                                            break;
-                                        }
-
-                                        l.push(self.peek_char_usize(count));
-
-                                        count += 1;
-                                    }
-                                    l.push('"');
-                                    println!("{}", l);
-
-                                    return Tokens {
-                                        Type: TokenType::Crossorigin,
-                                        Tag: Token::Crossorigin,
-                                        Value: Some(l.to_owned()),
-                                    };
-                                } else {
-                                    return Tokens {
-                                        Type: TokenType::Text,
-                                        Tag: Token::None,
-                                        Value: Some("crossorigin".to_owned()),
-                                    };
-                                }
+                                self.attribute("crossorigin")
                             }
                             "div" => {
                                 if self.peek_char() == '{' {
@@ -743,6 +575,71 @@ impl Lexer {
         }
         self.position = self.read_position;
         self.read_position += 1;
+    }
+
+    fn attribute(&mut self,tag:&str) -> Tokens {
+
+        self.read_char();
+        if self.peek_char_isize(-1) == ':' {
+            let mut count = 0;
+            let mut l = String::from('"');
+            loop {
+                if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
+                    break;
+                }
+
+                l.push(self.peek_char_usize(count));
+
+                count += 1;
+            }
+            l.push('"');
+
+
+            match tag {
+                "type" => Tokens {
+                    Type: TokenType::Attribute,
+                    Tag: Token::Type,
+                    Value: Some(l.to_owned()),
+                },
+                "id" => Tokens {
+                    Type: TokenType::Attribute,
+                    Tag: Token::Id,
+                    Value: Some(l.to_owned()),
+                },
+                "class" => Tokens {
+                    Type: TokenType::Attribute,
+                    Tag: Token::Class,
+                    Value: Some(l.to_owned()),
+                },
+                "style" => Tokens {
+                    Type: TokenType::Attribute,
+                    Tag: Token::Style,
+                    Value: Some(l.to_owned()),
+                },
+                "src" => Tokens {
+                    Type: TokenType::Attribute,
+                    Tag: Token::Src,
+                    Value: Some(l.to_owned()),
+                },
+                "crossorigin" => Tokens {
+                    Type: TokenType::Attribute,
+                    Tag: Token::Crossorigin,
+                    Value: Some(l.to_owned()),
+                },
+                _ => Tokens {
+                    Type: TokenType::None,
+                    Tag: Token::None,
+                    Value: None,
+                },
+            }
+
+        } else {
+            return Tokens {
+                Type: TokenType::Text,
+                Tag: Token::None,
+                Value: Some(tag.to_owned()),
+            };
+        }
     }
 
     fn peek_char(&self) -> char {
