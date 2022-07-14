@@ -220,6 +220,12 @@ impl Lexer {
             };
 
 
+            for j in (j..result.len()) {
+
+
+            }
+
+
             html += match result[j + 1].Tag {
                 Token::Id => {
                     idtag.push_str(&result[j + 1].Value.as_ref().unwrap());
