@@ -2,7 +2,6 @@ extern crate prog_rs;
 use prog_rs::prelude::*;
 use std::collections::HashMap;
 
-use std::{thread, time};
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub enum Token {
@@ -119,6 +118,7 @@ impl Lexer {
         let mut tmp2 = Vec::new();
 
         let mut tmp3 = Token::None;
+        let mut cba = 0;
 
         for i in (0..result_count)
             .progress()
@@ -220,42 +220,97 @@ impl Lexer {
             };
 
 
-            for j in (j..result.len()) {
+            let mut ca = 0;
+
+
+            for k in j..result.len() - 1 {
+
+                
+
+                if result[k].Type == TokenType::Attribute {
+                    // /println!("{:?}: {:?}", k, result[k ].Value);
+                    println!("cba: {:?}",cba);
+                    println!("ca: {:?}",ca);
+
+                    if cba == 1 && ca == 0 {
+                        break
+                    }
+
+                    if cba > 0 {
+                        cba = 0;
+                        
+                    }
+
+                    /*
+                    if cba  > ca {
+                        cba = 0;
+                        break
+                    }
+                    
+                    
+                    */
+                    
+                    
+
+
+
+
+                    html += match result[k].Tag {
+                        Token::Id => {
+                            idtag.push_str(&result[k ].Value.as_ref().unwrap());
+                            &idtag
+                        }
+                        Token::Class => {
+                            classtag.push_str(&result[k ].Value.as_ref().unwrap());
+                            &classtag
+                        }
+                        Token::Style => {
+                            styletag.push_str(&result[k ].Value.as_ref().unwrap());
+                            &styletag
+                        }
+                        Token::Src => {
+                            srctag.push_str(&result[k ].Value.as_ref().unwrap());
+                            &srctag
+                        }
+                        Token::Type => {
+                            typetag.push_str(&result[k ].Value.as_ref().unwrap());
+                            &typetag
+                        }
+                        Token::Crossorigin => {
+                            crossorigintag.push_str(&result[k ].Value.as_ref().unwrap());
+                            &crossorigintag
+                        }
+        
+                        Token::RCurlyBraces => "",
+                        Token::LCurlyBraces => "",
+                        _ => "",
+                    };
+
+               
+                    ca+=1;
+
+                }
+
+
+                if result[k + 1].Type == TokenType::Tag || result[k + 1].Type == TokenType::Text  {
+                    cba+=1;
+                    
+                    break
+                }
+
+                
+
+                println!("{:?}",result[k].Type);
+                println!("{}",html);
+
+
 
 
             }
 
 
-            html += match result[j + 1].Tag {
-                Token::Id => {
-                    idtag.push_str(&result[j + 1].Value.as_ref().unwrap());
-                    &idtag
-                }
-                Token::Class => {
-                    classtag.push_str(&result[j + 1].Value.as_ref().unwrap());
-                    &classtag
-                }
-                Token::Style => {
-                    styletag.push_str(&result[j + 1].Value.as_ref().unwrap());
-                    &styletag
-                }
-                Token::Src => {
-                    srctag.push_str(&result[j + 1].Value.as_ref().unwrap());
-                    &srctag
-                }
-                Token::Type => {
-                    typetag.push_str(&result[j + 1].Value.as_ref().unwrap());
-                    &typetag
-                }
-                Token::Crossorigin => {
-                    crossorigintag.push_str(&result[j + 1].Value.as_ref().unwrap());
-                    &crossorigintag
-                }
 
-                Token::RCurlyBraces => "",
-                Token::LCurlyBraces => "",
-                _ => "",
-            };
+            
 
             html += match result[j].Tag {
                 Token::Html => ">",
@@ -271,6 +326,9 @@ impl Lexer {
                 Token::LCurlyBraces => "",
                 _ => "",
             };
+
+
+
         }
 
         html

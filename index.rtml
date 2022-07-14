@@ -1,13 +1,21 @@
 html {
 
     id: aaa;
+    class: aaa;
+    type: aaa;
 
 
     body {
+            class: aaa;
+            type: aaa;
 
         src: iii;
 
         h1 {
+
+            src: uuu;
+            class: aaa;
+            type: aaa;
             
             "hello world "
             "ii "
@@ -16,11 +24,16 @@ html {
 
         h2 {
 
+            src: uuu;
+            class: aaa;
+            type: aaa;
 
             "oooo"
 
             
         }
+
+        
 
         
 
