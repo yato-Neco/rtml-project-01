@@ -1,52 +1,49 @@
 html {
 
-    id: aaa;
-    class: aaa;
-    type: aaa;
 
 
-    body {
-            class: aaa;
-            type: aaa;
 
-        src: iii;
+ 
+   head {
 
-        h1 {
+        meta {
+                
+        }
 
-            src: uuu;
-            class: aaa;
-            type: aaa;
-            
-            "hello world "
-            "ii "
+        script { 
+                
+                
+                      
         }
 
 
-        h2 {
 
-            src: uuu;
-            class: aaa;
-            type: aaa;
+        body {
 
-            "oooo"
 
-            
+
+
+
+                h1 {
+                        
+                        "RTML for WASM"
+                        
+                }
+
+
+
+
+
         }
 
+
+
+   }
+    
         
 
-        
 
 
-
-
-    }
+    
 }
 
-
-
-fn name() -> div {
-
-
-
-}

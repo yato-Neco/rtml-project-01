@@ -14,9 +14,12 @@ pub enum Token {
     Body,         //body
     Link,
     Script,
+    Charset,
+    Meta,
     Crossorigin,
     Integrity,
     Href,
+    Rel,
     H1,    //h1
     H2,    //h2
     H3,    //h3
@@ -34,6 +37,7 @@ pub enum Token {
     RTitle, //title
     RBody,  //body
     RH1,    //h1
+    RLink,
     RH2,    //h2
     RH3,    //h3
     RP,     //p
@@ -139,6 +143,7 @@ impl Lexer {
                     Token::Body => Token::RBody,
                     Token::Head => Token::RHead,
                     Token::Script => Token::RScript,
+                    Token::Link => Token::RLink,
                     Token::H1 => Token::RH1,
                     Token::H2 => Token::RH2,
                     Token::P => Token::RP,
@@ -190,6 +195,11 @@ impl Lexer {
             let mut srctag = " src= ".to_owned();
             let mut typetag = " type= ".to_owned();
             let mut crossorigintag = " crossorigin= ".to_owned();
+            let mut charsettag = " charset= ".to_owned();
+            let mut integritytag = " integrity= ".to_owned();
+            let mut hreftag = " href= ".to_owned();
+            let mut relftag = " rel= ".to_owned();
+
 
             html += match result[j].Type {
                 TokenType::Text => result[j].Value.as_ref().unwrap().as_str(),
@@ -201,10 +211,12 @@ impl Lexer {
                 Token::Head => "<head",
                 Token::Link => "<link",
                 Token::Div => "<div",
+                Token::Meta => "<meta",
                 Token::Body => "<body",
                 Token::H1 => "<h1",
                 Token::H2 => "<h2",
                 Token::P => "<p",
+                Token::RLink => "</link>",
                 Token::Script => "<script",
                 Token::RScript => "</script>",
                 Token::RP => "</p>",
@@ -222,15 +234,15 @@ impl Lexer {
 
             let mut ca = 0;
 
-
+            
             for k in j..result.len() - 1 {
 
                 
 
                 if result[k].Type == TokenType::Attribute {
                     // /println!("{:?}: {:?}", k, result[k ].Value);
-                    println!("cba: {:?}",cba);
-                    println!("ca: {:?}",ca);
+                    //println!("cba: {:?}",cba);
+                    //println!("ca: {:?}",ca);
 
                     if cba == 1 && ca == 0 {
                         break
@@ -280,6 +292,26 @@ impl Lexer {
                             crossorigintag.push_str(&result[k ].Value.as_ref().unwrap());
                             &crossorigintag
                         }
+                        Token::Charset => {
+                            charsettag.push_str(&result[k ].Value.as_ref().unwrap());
+                            &charsettag
+                        }
+                        Token::Integrity => {
+                            integritytag.push_str(&result[k ].Value.as_ref().unwrap());
+                            &integritytag
+                        }
+                        Token::Href => {
+                            hreftag.push_str(&result[k ].Value.as_ref().unwrap());
+                            &hreftag
+                        }
+                        Token::Rel => {
+                            relftag.push_str(&result[k ].Value.as_ref().unwrap());
+                            &relftag
+                        }
+                        Token::CSS => {
+                            styletag.push_str(&result[k ].Value.as_ref().unwrap());
+                            &styletag
+                        }
         
                         Token::RCurlyBraces => "",
                         Token::LCurlyBraces => "",
@@ -300,8 +332,8 @@ impl Lexer {
 
                 
 
-                println!("{:?}",result[k].Type);
-                println!("{}",html);
+                //println!("{:?}",result[k].Type);
+                //println!("{}",html);
 
 
 
@@ -315,7 +347,8 @@ impl Lexer {
             html += match result[j].Tag {
                 Token::Html => ">",
                 Token::Head => ">",
-                Token::Link => "/>",
+                Token::Link => ">",
+                Token::Meta => "/>",
                 Token::Div => ">",
                 Token::Body => ">",
                 Token::H1 => ">",
@@ -416,6 +449,15 @@ impl Lexer {
                             }
                             "crossorigin" => {
                                 self.attribute("crossorigin")
+                            }
+                            "charset" => {
+                                self.attribute("charset")
+                            }
+                            "integrity" => {
+                                self.attribute("integrity")
+                            }
+                            "href" => {
+                                self.attribute("href")
                             }
                             "div" => {
                                 if self.peek_char() == '{' {
@@ -530,6 +572,57 @@ impl Lexer {
                                     }
                                 }
                             }
+                            "meta" => {
+                                if self.peek_char() == '{' {
+                                    self.read_char();
+                                    Tokens {
+                                        Type: TokenType::Tag,
+                                        Tag: Token::Meta,
+                                        Value: None,
+                                    }
+                                } else {
+                                    self.read_char();
+                                    Tokens {
+                                        Type: TokenType::Text,
+                                        Tag: Token::None,
+                                        Value: Some(String::from("meta")),
+                                    }
+                                }
+                            }
+                            "link" => {
+                                if self.peek_char() == '{' {
+                                    self.read_char();
+                                    Tokens {
+                                        Type: TokenType::Tag,
+                                        Tag: Token::Link,
+                                        Value: None,
+                                    }
+                                } else {
+                                    self.read_char();
+                                    Tokens {
+                                        Type: TokenType::Text,
+                                        Tag: Token::None,
+                                        Value: Some(String::from("link")),
+                                    }
+                                }
+                            }
+                            "script" => {
+                                if self.peek_char() == '{' {
+                                    self.read_char();
+                                    Tokens {
+                                        Type: TokenType::Tag,
+                                        Tag: Token::Script,
+                                        Value: None,
+                                    }
+                                } else {
+                                    self.read_char();
+                                    Tokens {
+                                        Type: TokenType::Text,
+                                        Tag: Token::None,
+                                        Value: Some(String::from("script")),
+                                    }
+                                }
+                            }
                             "head" => {
                                 if self.peek_char() == '{' {
                                     self.read_char();
@@ -544,6 +637,18 @@ impl Lexer {
                                         Type: TokenType::Text,
                                         Tag: Token::None,
                                         Value: Some(String::from("head")),
+                                    }
+                                }
+                            }
+                            "css" => {
+                                if self.peek_char() == '{' {
+                                    self.attribute("style")
+                                } else {
+                                    self.read_char();
+                                    Tokens {
+                                        Type: TokenType::Text,
+                                        Tag: Token::None,
+                                        Value: Some(String::from("css")),
                                     }
                                 }
                             }
@@ -642,6 +747,42 @@ impl Lexer {
         self.read_position += 1;
     }
 
+
+    fn css(&mut self,tag:&str) -> Tokens  {
+        self.read_char();
+        if self.peek_char_isize(-1) == ':' {
+            let mut count = 0;
+            let mut l = String::from('"');
+            loop {
+                if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
+                    break;
+                }
+
+                l.push(self.peek_char_usize(count));
+
+                count += 1;
+            }
+            l.push('"');
+
+
+            return Tokens {
+                Type: TokenType::Attribute,
+                Tag: Token::Style,
+                Value: Some(l.to_owned()),
+            };
+
+            
+
+        }else {
+            return Tokens {
+                Type: TokenType::Text,
+                Tag: Token::None,
+                Value: Some("css".to_owned()),
+            };
+        }
+
+    }
+
     fn attribute(&mut self,tag:&str) -> Tokens {
 
         self.read_char();
@@ -649,7 +790,7 @@ impl Lexer {
             let mut count = 0;
             let mut l = String::from('"');
             loop {
-                if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
+                if self.peek_char_usize(count) == ';'  {
                     break;
                 }
 
@@ -689,6 +830,26 @@ impl Lexer {
                 "crossorigin" => Tokens {
                     Type: TokenType::Attribute,
                     Tag: Token::Crossorigin,
+                    Value: Some(l.to_owned()),
+                },
+                "charset" => Tokens {
+                    Type: TokenType::Attribute,
+                    Tag: Token::Charset,
+                    Value: Some(l.to_owned()),
+                },
+                "integrity" => Tokens {
+                    Type: TokenType::Attribute,
+                    Tag: Token::Integrity,
+                    Value: Some(l.to_owned()),
+                },
+                "href" => Tokens {
+                    Type: TokenType::Attribute,
+                    Tag: Token::Href,
+                    Value: Some(l.to_owned()),
+                },
+                "rel" => Tokens {
+                    Type: TokenType::Attribute,
+                    Tag: Token::Rel,
                     Value: Some(l.to_owned()),
                 },
                 _ => Tokens {
