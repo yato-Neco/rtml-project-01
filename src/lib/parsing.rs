@@ -388,6 +388,8 @@ impl Lexer {
                     Value: None,
                 }
             }
+            
+
             b':' => {
                 self.read_char();
                 Tokens {
@@ -396,6 +398,49 @@ impl Lexer {
                     Value: None,
                 }
             }
+
+            b'/' => {
+                self.read_char();
+                Tokens {
+                    Type: TokenType::Other,
+                    Tag: Token::None,
+                    Value: None,
+                }
+            }
+
+
+            b'-' => {
+                self.read_char();
+                Tokens {
+                    Type: TokenType::Other,
+                    Tag: Token::None,
+                    Value: None,
+                }
+            }
+            b'@' => {
+                self.read_char();
+                Tokens {
+                    Type: TokenType::Other,
+                    Tag: Token::None,
+                    Value: None,
+                }
+            }
+
+
+            b'.' => {
+                self.read_char();
+                Tokens {
+                    Type: TokenType::Other,
+                    Tag: Token::None,
+                    Value: None,
+                }
+            }
+            
+            
+            
+            
+            
+            
 
             b'}' => {
                 self.read_char();
@@ -458,6 +503,9 @@ impl Lexer {
                             }
                             "href" => {
                                 self.attribute("href")
+                            }
+                            "rel" => {
+                                self.attribute("rel")
                             }
                             "div" => {
                                 if self.peek_char() == '{' {
@@ -754,7 +802,7 @@ impl Lexer {
             let mut count = 0;
             let mut l = String::from('"');
             loop {
-                if self.peek_char_usize(count) == ';' || count > 2 ^ 16 {
+                if self.peek_char_usize(count) == ';'  {
                     break;
                 }
 

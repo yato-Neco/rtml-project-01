@@ -1,0 +1,76 @@
+Tokens { Type: Tag, Tag: Html, Value: None }
+Tokens { Type: Tag, Tag: Head, Value: None }
+Tokens { Type: Tag, Tag: Meta, Value: None }
+Tokens { Type: Attribute, Tag: Charset, Value: Some("\" utf-8\"") }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: None, Tag: None, Value: None }
+Tokens { Type: Other, Tag: RCurlyBraces, Value: None }
+Tokens { Type: Tag, Tag: Script, Value: None }
+Tokens { Type: Attribute, Tag: Type, Value: Some("\" module\"") }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: Other, Tag: RCurlyBraces, Value: None }
+Tokens { Type: Tag, Tag: Link, Value: None }
+Tokens { Type: Attribute, Tag: Href, Value: Some("\" https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css\"") }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: None, Tag: None, Value: None }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: None, Tag: None, Value: None }
+Tokens { Type: None, Tag: None, Value: None }
+
+
+
+Tokens { Type: Tag, Tag: Html, Value: None }
+Tokens { Type: Tag, Tag: Head, Value: None }
+Tokens { Type: Tag, Tag: Meta, Value: None }
+Tokens { Type: Attribute, Tag: Charset, Value: Some("\" utf-8\"") }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: None, Tag: None, Value: None }
+Tokens { Type: Other, Tag: RCurlyBraces, Value: None }
+Tokens { Type: Tag, Tag: Script, Value: None }
+Tokens { Type: Attribute, Tag: Type, Value: Some("\" module\"") }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: Other, Tag: RCurlyBraces, Value: None }
+Tokens { Type: Tag, Tag: Link, Value: None }
+Tokens { Type: Attribute, Tag: Href, Value: Some("\" https:cdn.jsdelivr.netnpmbootstrap@5.0.2distcssbootstrap.min.css\"") }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: None, Tag: None, Value: None }
+Tokens { Type: None, Tag: None, Value: None }
+Tokens { Type: None, Tag: None, Value: None }
+
+
+Tokens { Type: Tag, Tag: Html, Value: None }
+Tokens { Type: Tag, Tag: Head, Value: None }
+Tokens { Type: Tag, Tag: Meta, Value: None }
+Tokens { Type: Attribute, Tag: Charset, Value: Some("\" utf-8\"") }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: None, Tag: None, Value: None }
+Tokens { Type: Other, Tag: RCurlyBraces, Value: None }
+Tokens { Type: Tag, Tag: Script, Value: None }
+Tokens { Type: Attribute, Tag: Type, Value: Some("\" module\"") }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: Other, Tag: RCurlyBraces, Value: None }
+Tokens { Type: Tag, Tag: Link, Value: None }
+Tokens { Type: Attribute, Tag: Href, Value: Some("\" httpscdnjsdelivrnetnpmbootstrap@502distcssbootstrapmincss\"") }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: None, Tag: None, Value: None }
+Tokens { Type: None, Tag: None, Value: None }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: Other, Tag: RCurlyBraces, Value: None }
+Tokens { Type: Tag, Tag: Body, Value: None }
+Tokens { Type: Tag, Tag: H1, Value: None }
+Tokens { Type: Text, Tag: None, Value: Some("RTML for WASM") }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: Other, Tag: None, Value: None }
+Tokens { Type: Other, Tag: RCurlyBraces, Value: None }
+Tokens { Type: Other, Tag: RCurlyBraces, Value: None }
+Tokens { Type: Other, Tag: RCurlyBraces, Value: None }
+Tokens { Type: Other, Tag: RCurlyBraces, Value: None }
+Tokens { Type: None, Tag: None, Value: None }
